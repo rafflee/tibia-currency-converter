@@ -29,21 +29,36 @@ function savePreferences() {
     localStorage.setItem('tibiaConverterPrefs', JSON.stringify(prefs));
 }
 
-// Generate currency grid HTML
-function generateCurrencyGrid(costs, selectedCurrency) {
+// Update currency grid with values
+function updateCurrencyGrid(costs, selectedCurrency) {
     const currencies = ['PLN', 'EUR', 'USD', 'GBP', 'BRL', 'SEK'];
-    const copyText = currencies.map(code => `${code} ${costs[code].toFixed(2)}`).join(' | ');
-    let html = `<div class="currency-grid" data-copy="${copyText}">`;
+    const currencyGrid = document.getElementById('currency-grid');
+
+    if (costs) {
+        const copyText = currencies.map(code => `${code} ${costs[code].toFixed(2)}`).join(' | ');
+        currencyGrid.dataset.copy = copyText;
+    } else {
+        currencyGrid.dataset.copy = '';
+    }
+
     currencies.forEach(code => {
-        const isHighlighted = code === selectedCurrency ? 'highlighted' : '';
-        const amount = costs[code].toFixed(2);
-        html += `<div class="currency-item ${isHighlighted}">
-            <span class="amount">${amount}</span>
-            <span class="code">${code}</span>
-        </div>`;
+        const item = currencyGrid.querySelector(`[data-currency="${code}"]`);
+        const amountSpan = item.querySelector('.amount');
+
+        if (costs) {
+            amountSpan.textContent = costs[code].toFixed(2);
+            item.classList.remove('placeholder');
+            if (code === selectedCurrency) {
+                item.classList.add('highlighted');
+            } else {
+                item.classList.remove('highlighted');
+            }
+        } else {
+            amountSpan.textContent = '--';
+            item.classList.add('placeholder');
+            item.classList.remove('highlighted');
+        }
     });
-    html += '</div>';
-    return html;
 }
 
 // Function to fetch exchange rates
@@ -85,6 +100,9 @@ const swapButton = document.getElementById('swap-button');
 const copyButton = document.getElementById('copy-button');
 const themeToggle = document.getElementById('theme-toggle');
 const resultActions = document.querySelector('.result-actions');
+const resultFrom = document.getElementById('result-from');
+const resultTo = document.getElementById('result-to');
+const currencyGrid = document.getElementById('currency-grid');
 
 // Update amount label based on currency type
 function updateAmountLabel() {
@@ -100,6 +118,21 @@ function updateAmountLabel() {
     }
 }
 
+// Helper to update conversion result display
+function updateConversionResult(fromText, toText) {
+    if (fromText && toText) {
+        resultFrom.textContent = fromText;
+        resultFrom.classList.remove('placeholder');
+        resultTo.textContent = toText;
+        resultTo.classList.remove('placeholder');
+    } else {
+        resultFrom.textContent = '--';
+        resultFrom.classList.add('placeholder');
+        resultTo.textContent = '--';
+        resultTo.classList.add('placeholder');
+    }
+}
+
 // Main calculation function
 async function calculate() {
     const currencyType = currencyTypeSelect.value;
@@ -108,89 +141,60 @@ async function calculate() {
     const tc250Price = parseFloat(tc250PriceInput.value);
     const currency = currencySelect.value;
 
-    // Clear results if no amount is entered
-    if (!amount || amount <= 0) {
-        resultDiv.innerHTML = '';
-        return;
-    }
-
-    let results = [];
+    let fromText = null;
+    let toText = null;
+    let tcAmountForFiat = null;
 
     if (currencyType === 'gp') {
         // Starting with GP
-        const gpAmount = amount * 1000000;
+        if (amount && amount > 0) {
+            const gpAmount = amount * 1000000;
 
-        // Calculate TC equivalent if market price is provided
-        if (tcMarketPrice && tcMarketPrice > 0) {
-            const tcAmount = gpAmount / tcMarketPrice;
-            results.push(`<strong>${gpAmount.toLocaleString()} GP (${amount} kk)</strong> = <strong>${tcAmount.toFixed(2)} TC</strong>`);
-
-            // Calculate fiat currencies if 250 TC price is provided
-            if (tc250Price && tc250Price > 0) {
-                const costInInputCurrency = (tcAmount / 250) * tc250Price;
-                try {
-                    const { rates } = await fetchExchangeRates(currency, true);
-                    const costs = {
-                        PLN: currency === 'PLN' ? costInInputCurrency : costInInputCurrency * rates.PLN,
-                        EUR: currency === 'EUR' ? costInInputCurrency : costInInputCurrency * rates.EUR,
-                        USD: currency === 'USD' ? costInInputCurrency : costInInputCurrency * rates.USD,
-                        GBP: currency === 'GBP' ? costInInputCurrency : costInInputCurrency * rates.GBP,
-                        BRL: currency === 'BRL' ? costInInputCurrency : costInInputCurrency * rates.BRL,
-                        SEK: currency === 'SEK' ? costInInputCurrency : costInInputCurrency * rates.SEK
-                    };
-
-                    results.push(`<br><strong>Real Currency Value:</strong>${generateCurrencyGrid(costs, currency)}`);
-                } catch (error) {
-                    results.push(`<br><span style="color: #e74c3c;">${error.message}</span>`);
-                }
+            if (tcMarketPrice && tcMarketPrice > 0) {
+                const tcAmount = gpAmount / tcMarketPrice;
+                fromText = `${gpAmount.toLocaleString()} GP (${amount} kk)`;
+                toText = `${tcAmount.toFixed(2)} TC`;
+                tcAmountForFiat = tcAmount;
             }
         }
     } else {
         // Starting with TC
-        const tcAmount = amount;
+        if (amount && amount > 0) {
+            tcAmountForFiat = amount;
 
-        // Calculate GP equivalent if market price is provided
-        if (tcMarketPrice && tcMarketPrice > 0) {
-            const gpAmount = tcAmount * tcMarketPrice;
-            const gpAmountKK = gpAmount / 1000000;
-            results.push(`<strong>${tcAmount.toLocaleString()} TC</strong> = <strong>${gpAmount.toLocaleString()} GP (${gpAmountKK.toFixed(2)} kk)</strong>`);
-        }
-
-        // Calculate fiat currencies if 250 TC price is provided
-        if (tc250Price && tc250Price > 0) {
-            const costInInputCurrency = (tcAmount / 250) * tc250Price;
-            try {
-                const { rates } = await fetchExchangeRates(currency, true);
-                const costs = {
-                    PLN: currency === 'PLN' ? costInInputCurrency : costInInputCurrency * rates.PLN,
-                    EUR: currency === 'EUR' ? costInInputCurrency : costInInputCurrency * rates.EUR,
-                    USD: currency === 'USD' ? costInInputCurrency : costInInputCurrency * rates.USD,
-                    GBP: currency === 'GBP' ? costInInputCurrency : costInInputCurrency * rates.GBP,
-                    BRL: currency === 'BRL' ? costInInputCurrency : costInInputCurrency * rates.BRL,
-                    SEK: currency === 'SEK' ? costInInputCurrency : costInInputCurrency * rates.SEK
-                };
-
-                if (results.length > 0) results.push(`<br>`);
-                results.push(`<strong>Real Currency Value:</strong>${generateCurrencyGrid(costs, currency)}`);
-            } catch (error) {
-                results.push(`<br><span style="color: #e74c3c;">${error.message}</span>`);
+            if (tcMarketPrice && tcMarketPrice > 0) {
+                const gpAmount = amount * tcMarketPrice;
+                const gpAmountKK = gpAmount / 1000000;
+                fromText = `${amount.toLocaleString()} TC`;
+                toText = `${gpAmount.toLocaleString()} GP (${gpAmountKK.toFixed(2)} kk)`;
             }
         }
     }
 
-    // Display results with animation
-    if (results.length > 0) {
-        resultDiv.classList.remove('show', 'loading-state');
-        void resultDiv.offsetWidth; // Trigger reflow to restart animation
-        resultDiv.innerHTML = results.join('<br>');
-        setTimeout(() => {
-            resultDiv.classList.add('show');
-        }, 10);
-        resultActions.style.display = 'flex';
+    // Update conversion result
+    updateConversionResult(fromText, toText);
+
+    // Calculate fiat currencies if we have TC amount and 250 TC price
+    if (tcAmountForFiat && tc250Price && tc250Price > 0) {
+        const costInInputCurrency = (tcAmountForFiat / 250) * tc250Price;
+        try {
+            const { rates } = await fetchExchangeRates(currency, false);
+            const costs = {
+                PLN: currency === 'PLN' ? costInInputCurrency : costInInputCurrency * rates.PLN,
+                EUR: currency === 'EUR' ? costInInputCurrency : costInInputCurrency * rates.EUR,
+                USD: currency === 'USD' ? costInInputCurrency : costInInputCurrency * rates.USD,
+                GBP: currency === 'GBP' ? costInInputCurrency : costInInputCurrency * rates.GBP,
+                BRL: currency === 'BRL' ? costInInputCurrency : costInInputCurrency * rates.BRL,
+                SEK: currency === 'SEK' ? costInInputCurrency : costInInputCurrency * rates.SEK
+            };
+            updateCurrencyGrid(costs, currency);
+        } catch (error) {
+            // Keep placeholders on error
+            updateCurrencyGrid(null, null);
+        }
     } else {
-        resultDiv.classList.remove('show', 'loading-state');
-        resultDiv.innerHTML = '<span style="color: #95a5a6;">Enter values to see conversions</span>';
-        resultActions.style.display = 'none';
+        // Reset currency grid to placeholders
+        updateCurrencyGrid(null, null);
     }
 }
 
@@ -218,9 +222,8 @@ currencySelect.addEventListener('change', function() {
 // Reset button
 resetButton.addEventListener('click', function() {
     document.getElementById('unified-calculator-form').reset();
-    resultDiv.classList.remove('show', 'loading-state');
-    resultDiv.innerHTML = '';
-    resultActions.style.display = 'none';
+    updateConversionResult(null, null);
+    updateCurrencyGrid(null, null);
     savePreferences();
     updateAmountLabel();
 });
@@ -236,20 +239,22 @@ swapButton.addEventListener('click', function() {
 
 // Copy button - copy result to clipboard
 copyButton.addEventListener('click', function() {
-    // Build copy text from result
     let textParts = [];
 
-    // Get the GP/TC conversion (first strong elements contain this)
-    const strongElements = resultDiv.querySelectorAll('strong');
-    if (strongElements.length >= 2) {
-        // First two strong elements are the conversion (e.g., "20,000,000 GP (20 kk)" and "500.00 TC")
-        textParts.push(strongElements[0].textContent + ' = ' + strongElements[1].textContent);
+    // Get the GP/TC conversion
+    const fromText = resultFrom.textContent;
+    const toText = resultTo.textContent;
+    if (fromText !== '--' && toText !== '--') {
+        textParts.push(fromText + ' = ' + toText);
     }
 
     // Get currency grid data if present
-    const currencyGrid = resultDiv.querySelector('.currency-grid');
-    if (currencyGrid && currencyGrid.dataset.copy) {
+    if (currencyGrid.dataset.copy) {
         textParts.push('Real Currency Value: ' + currencyGrid.dataset.copy);
+    }
+
+    if (textParts.length === 0) {
+        return; // Nothing to copy
     }
 
     const textToCopy = textParts.join('\n');
@@ -271,6 +276,32 @@ themeToggle.addEventListener('click', function() {
     localStorage.setItem('tibiaConverterDarkMode', isDark);
 });
 
+// Keyboard navigation - Enter moves to next empty field
+const inputFields = [amountInput, tcMarketPriceInput, tc250PriceInput];
+inputFields.forEach((field, index) => {
+    field.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            // Find next empty field
+            for (let i = index + 1; i < inputFields.length; i++) {
+                if (!inputFields[i].value) {
+                    inputFields[i].focus();
+                    return;
+                }
+            }
+            // If all fields after are filled, check from beginning
+            for (let i = 0; i < index; i++) {
+                if (!inputFields[i].value) {
+                    inputFields[i].focus();
+                    return;
+                }
+            }
+            // All fields filled - blur to dismiss keyboard on mobile
+            field.blur();
+        }
+    });
+});
+
 // Initialize
 const savedPrefs = loadPreferences();
 if (savedPrefs) {
@@ -286,3 +317,13 @@ if (localStorage.getItem('tibiaConverterDarkMode') === 'true') {
 }
 
 updateAmountLabel();
+
+// Initialize placeholder states
+resultFrom.classList.add('placeholder');
+resultTo.classList.add('placeholder');
+document.querySelectorAll('#currency-grid .currency-item').forEach(item => {
+    item.classList.add('placeholder');
+});
+
+// Calculate with any saved preferences
+calculate();
