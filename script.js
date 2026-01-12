@@ -227,6 +227,7 @@ resetButton.addEventListener('click', function() {
 
 // Swap button - toggle between GP and TC
 swapButton.addEventListener('click', function() {
+    swapButton.classList.toggle('rotating');
     currencyTypeSelect.value = currencyTypeSelect.value === 'gp' ? 'tc' : 'gp';
     updateAmountLabel();
     savePreferences();
