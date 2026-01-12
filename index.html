@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GP & TC Converter</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1>GP & TC Converter</h1>
+        <div class="calculators">
+            <!-- Unified Calculator -->
+            <div class="calculator">
+                <h2>Currency Converter</h2>
+                <form id="unified-calculator-form">
+                    <label for="currency-type">I want to convert:</label>
+                    <select id="currency-type">
+                        <option value="gp">GP (Gold Pieces)</option>
+                        <option value="tc">TC (Tibia Coins)</option>
+                    </select>
+
+                    <label for="amount" id="amount-label">GP Amount in kk:</label>
+                    <input type="number" id="amount" placeholder="e.g., 20" step="0.01">
+
+                    <div id="tc-market-price-group">
+                        <label for="tc-market-price">Tibia Coin Market Price (GP per 1 TC):</label>
+                        <input type="number" id="tc-market-price" placeholder="e.g., 40000" value="40000">
+                    </div>
+
+                    <label for="tc-250-price">Price for 250 Tibia Coins (optional):</label>
+                    <div class="input-group">
+                        <input type="number" id="tc-250-price" placeholder="e.g., 40" step="0.01">
+                        <select id="currency">
+                            <option value="PLN">PLN</option>
+                            <option value="EUR">EUR</option>
+                            <option value="USD">USD</option>
+                            <option value="GBP">GBP</option>
+                        </select>
+                    </div>
+
+                    <div class="button-group">
+                        <button type="button" id="reset-button">Reset</button>
+                    </div>
+                </form>
+                <div id="result" class="result"></div>
+            </div>
+        </div>
+        <footer>Rates by <a href="https://www.exchangerate-api.com">ExchangeRate-API</a></footer>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
