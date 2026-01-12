@@ -1,0 +1,17 @@
+{
+  "name": "Tibia GP & TC Converter",
+  "short_name": "TC Converter",
+  "description": "Convert Tibia Gold Pieces (GP) to Tibia Coins (TC) and real-world currencies.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#667eea",
+  "icons": [
+    {
+      "src": "cc.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

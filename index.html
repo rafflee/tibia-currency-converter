@@ -3,7 +3,27 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GP & TC Converter</title>
+    <title>Tibia GP & TC Converter</title>
+    <meta name="description" content="Convert Tibia Gold Pieces (GP) to Tibia Coins (TC) and real-world currencies. Fast, free calculator for Tibia players.">
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="cc.png">
+    <link rel="apple-touch-icon" href="cc.png">
+
+    <!-- Open Graph / Social Sharing -->
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Tibia GP & TC Converter">
+    <meta property="og:description" content="Convert Tibia Gold Pieces (GP) to Tibia Coins (TC) and real-world currencies.">
+    <meta property="og:image" content="cc.png">
+    <meta name="twitter:card" content="summary">
+
+    <!-- PWA -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#667eea">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="TC Converter">
+
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -50,14 +70,52 @@
                     </div>
 
                 </form>
-                <div id="result" class="result"></div>
-                <div class="result-actions" style="display: none;">
+                <div id="result" class="result show">
+                    <div class="conversion-result">
+                        <span id="result-from" class="result-value">--</span>
+                        <span class="result-equals">=</span>
+                        <span id="result-to" class="result-value">--</span>
+                    </div>
+                    <div class="currency-section">
+                        <div class="currency-label">Real Currency Value:</div>
+                        <div class="currency-grid" id="currency-grid">
+                            <div class="currency-item" data-currency="PLN">
+                                <span class="amount">--</span>
+                                <span class="code">PLN</span>
+                            </div>
+                            <div class="currency-item" data-currency="EUR">
+                                <span class="amount">--</span>
+                                <span class="code">EUR</span>
+                            </div>
+                            <div class="currency-item" data-currency="USD">
+                                <span class="amount">--</span>
+                                <span class="code">USD</span>
+                            </div>
+                            <div class="currency-item" data-currency="GBP">
+                                <span class="amount">--</span>
+                                <span class="code">GBP</span>
+                            </div>
+                            <div class="currency-item" data-currency="BRL">
+                                <span class="amount">--</span>
+                                <span class="code">BRL</span>
+                            </div>
+                            <div class="currency-item" data-currency="SEK">
+                                <span class="amount">--</span>
+                                <span class="code">SEK</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="result-actions">
                     <button type="button" id="copy-button" class="copy-button">Copy Result</button>
                     <button type="button" id="reset-button">Reset</button>
                 </div>
             </div>
         </div>
-        <footer>Rates by <a href="https://www.exchangerate-api.com">ExchangeRate-API</a></footer>
+        <footer>
+            <a href="https://www.tibia.com">Tibia</a> is a registered trademark of <a href="https://www.cipsoft.com">CipSoft GmbH</a>.<br>
+            Rates by <a href="https://www.exchangerate-api.com">ExchangeRate-API</a>
+        </footer>
     </div>
     <script src="script.js"></script>
 </body>
