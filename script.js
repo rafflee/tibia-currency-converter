@@ -86,8 +86,10 @@ async function calculate() {
                     const costEUR = currency === 'EUR' ? costInInputCurrency : costInInputCurrency * rates.EUR;
                     const costUSD = currency === 'USD' ? costInInputCurrency : costInInputCurrency * rates.USD;
                     const costGBP = currency === 'GBP' ? costInInputCurrency : costInInputCurrency * rates.GBP;
+                    const costBRL = currency === 'BRL' ? costInInputCurrency : costInInputCurrency * rates.BRL;
+                    const costSEK = currency === 'SEK' ? costInInputCurrency : costInInputCurrency * rates.SEK;
 
-                    results.push(`<br><strong>Real Currency Value:</strong> ${costPLN.toFixed(2)} PLN | ${costEUR.toFixed(2)} EUR | ${costUSD.toFixed(2)} USD | ${costGBP.toFixed(2)} GBP`);
+                    results.push(`<br><strong>Real Currency Value:</strong> ${costPLN.toFixed(2)} PLN | ${costEUR.toFixed(2)} EUR | ${costUSD.toFixed(2)} USD | ${costGBP.toFixed(2)} GBP | ${costBRL.toFixed(2)} BRL | ${costSEK.toFixed(2)} SEK`);
                 } catch (error) {
                     results.push(`<br><span style="color: #e74c3c;">${error.message}</span>`);
                 }
@@ -113,9 +115,11 @@ async function calculate() {
                 const costEUR = currency === 'EUR' ? costInInputCurrency : costInInputCurrency * rates.EUR;
                 const costUSD = currency === 'USD' ? costInInputCurrency : costInInputCurrency * rates.USD;
                 const costGBP = currency === 'GBP' ? costInInputCurrency : costInInputCurrency * rates.GBP;
+                const costBRL = currency === 'BRL' ? costInInputCurrency : costInInputCurrency * rates.BRL;
+                const costSEK = currency === 'SEK' ? costInInputCurrency : costInInputCurrency * rates.SEK;
 
                 if (results.length > 0) results.push(`<br>`);
-                results.push(`<strong>Real Currency Value:</strong> ${costPLN.toFixed(2)} PLN | ${costEUR.toFixed(2)} EUR | ${costUSD.toFixed(2)} USD | ${costGBP.toFixed(2)} GBP`);
+                results.push(`<strong>Real Currency Value:</strong> ${costPLN.toFixed(2)} PLN | ${costEUR.toFixed(2)} EUR | ${costUSD.toFixed(2)} USD | ${costGBP.toFixed(2)} GBP | ${costBRL.toFixed(2)} BRL | ${costSEK.toFixed(2)} SEK`);
             } catch (error) {
                 results.push(`<br><span style="color: #e74c3c;">${error.message}</span>`);
             }
