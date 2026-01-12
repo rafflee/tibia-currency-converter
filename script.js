@@ -91,11 +91,11 @@ function updateAmountLabel() {
     const currencyType = currencyTypeSelect.value;
     if (currencyType === 'gp') {
         amountLabel.textContent = 'GP Amount in kk:';
-        amountInput.placeholder = 'e.g., 20';
+        amountInput.placeholder = 'e.g. 20';
         amountInput.step = '0.01';
     } else {
         amountLabel.textContent = 'Tibia Coin Amount:';
-        amountInput.placeholder = 'e.g., 5000';
+        amountInput.placeholder = 'e.g. 5000';
         amountInput.step = '1';
     }
 }
@@ -218,10 +218,10 @@ currencySelect.addEventListener('change', function() {
 // Reset button
 resetButton.addEventListener('click', function() {
     document.getElementById('unified-calculator-form').reset();
-    tcMarketPriceInput.value = '40000'; // Restore default
     resultDiv.classList.remove('show', 'loading-state');
     resultDiv.innerHTML = '';
     resultActions.style.display = 'none';
+    savePreferences();
     updateAmountLabel();
 });
 
@@ -275,7 +275,7 @@ themeToggle.addEventListener('click', function() {
 const savedPrefs = loadPreferences();
 if (savedPrefs) {
     currencyTypeSelect.value = savedPrefs.currencyType || 'gp';
-    tcMarketPriceInput.value = savedPrefs.tcMarketPrice || '40000';
+    tcMarketPriceInput.value = savedPrefs.tcMarketPrice || '';
     currencySelect.value = savedPrefs.currency || 'PLN';
     tc250PriceInput.value = savedPrefs.tc250Price || '';
 }
