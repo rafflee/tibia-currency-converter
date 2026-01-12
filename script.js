@@ -2,6 +2,50 @@
 let exchangeRates = {};
 let lastInputCurrency = null;
 
+// Currency symbols map
+const currencySymbols = {
+    PLN: 'zł',
+    EUR: '€',
+    USD: '$',
+    GBP: '£',
+    BRL: 'R$',
+    SEK: 'kr'
+};
+
+// Load preferences from localStorage
+function loadPreferences() {
+    const prefs = localStorage.getItem('tibiaConverterPrefs');
+    return prefs ? JSON.parse(prefs) : null;
+}
+
+// Save preferences to localStorage
+function savePreferences() {
+    const prefs = {
+        currencyType: currencyTypeSelect.value,
+        tcMarketPrice: tcMarketPriceInput.value,
+        currency: currencySelect.value,
+        tc250Price: tc250PriceInput.value
+    };
+    localStorage.setItem('tibiaConverterPrefs', JSON.stringify(prefs));
+}
+
+// Generate currency grid HTML
+function generateCurrencyGrid(costs, selectedCurrency) {
+    const currencies = ['PLN', 'EUR', 'USD', 'GBP', 'BRL', 'SEK'];
+    const copyText = currencies.map(code => `${code} ${costs[code].toFixed(2)}`).join(' | ');
+    let html = `<div class="currency-grid" data-copy="${copyText}">`;
+    currencies.forEach(code => {
+        const isHighlighted = code === selectedCurrency ? 'highlighted' : '';
+        const amount = costs[code].toFixed(2);
+        html += `<div class="currency-item ${isHighlighted}">
+            <span class="amount">${amount}</span>
+            <span class="code">${code}</span>
+        </div>`;
+    });
+    html += '</div>';
+    return html;
+}
+
 // Function to fetch exchange rates
 async function fetchExchangeRates(inputCurrency, showLoading = false) {
     if (exchangeRates[inputCurrency] && lastInputCurrency === inputCurrency) {
@@ -37,6 +81,10 @@ const tc250PriceInput = document.getElementById('tc-250-price');
 const currencySelect = document.getElementById('currency');
 const resultDiv = document.getElementById('result');
 const resetButton = document.getElementById('reset-button');
+const swapButton = document.getElementById('swap-button');
+const copyButton = document.getElementById('copy-button');
+const themeToggle = document.getElementById('theme-toggle');
+const resultActions = document.querySelector('.result-actions');
 
 // Update amount label based on currency type
 function updateAmountLabel() {
@@ -82,14 +130,16 @@ async function calculate() {
                 const costInInputCurrency = (tcAmount / 250) * tc250Price;
                 try {
                     const { rates } = await fetchExchangeRates(currency, true);
-                    const costPLN = currency === 'PLN' ? costInInputCurrency : costInInputCurrency * rates.PLN;
-                    const costEUR = currency === 'EUR' ? costInInputCurrency : costInInputCurrency * rates.EUR;
-                    const costUSD = currency === 'USD' ? costInInputCurrency : costInInputCurrency * rates.USD;
-                    const costGBP = currency === 'GBP' ? costInInputCurrency : costInInputCurrency * rates.GBP;
-                    const costBRL = currency === 'BRL' ? costInInputCurrency : costInInputCurrency * rates.BRL;
-                    const costSEK = currency === 'SEK' ? costInInputCurrency : costInInputCurrency * rates.SEK;
+                    const costs = {
+                        PLN: currency === 'PLN' ? costInInputCurrency : costInInputCurrency * rates.PLN,
+                        EUR: currency === 'EUR' ? costInInputCurrency : costInInputCurrency * rates.EUR,
+                        USD: currency === 'USD' ? costInInputCurrency : costInInputCurrency * rates.USD,
+                        GBP: currency === 'GBP' ? costInInputCurrency : costInInputCurrency * rates.GBP,
+                        BRL: currency === 'BRL' ? costInInputCurrency : costInInputCurrency * rates.BRL,
+                        SEK: currency === 'SEK' ? costInInputCurrency : costInInputCurrency * rates.SEK
+                    };
 
-                    results.push(`<br><strong>Real Currency Value:</strong> ${costPLN.toFixed(2)} PLN | ${costEUR.toFixed(2)} EUR | ${costUSD.toFixed(2)} USD | ${costGBP.toFixed(2)} GBP | ${costBRL.toFixed(2)} BRL | ${costSEK.toFixed(2)} SEK`);
+                    results.push(`<br><strong>Real Currency Value:</strong>${generateCurrencyGrid(costs, currency)}`);
                 } catch (error) {
                     results.push(`<br><span style="color: #e74c3c;">${error.message}</span>`);
                 }
@@ -111,15 +161,17 @@ async function calculate() {
             const costInInputCurrency = (tcAmount / 250) * tc250Price;
             try {
                 const { rates } = await fetchExchangeRates(currency, true);
-                const costPLN = currency === 'PLN' ? costInInputCurrency : costInInputCurrency * rates.PLN;
-                const costEUR = currency === 'EUR' ? costInInputCurrency : costInInputCurrency * rates.EUR;
-                const costUSD = currency === 'USD' ? costInInputCurrency : costInInputCurrency * rates.USD;
-                const costGBP = currency === 'GBP' ? costInInputCurrency : costInInputCurrency * rates.GBP;
-                const costBRL = currency === 'BRL' ? costInInputCurrency : costInInputCurrency * rates.BRL;
-                const costSEK = currency === 'SEK' ? costInInputCurrency : costInInputCurrency * rates.SEK;
+                const costs = {
+                    PLN: currency === 'PLN' ? costInInputCurrency : costInInputCurrency * rates.PLN,
+                    EUR: currency === 'EUR' ? costInInputCurrency : costInInputCurrency * rates.EUR,
+                    USD: currency === 'USD' ? costInInputCurrency : costInInputCurrency * rates.USD,
+                    GBP: currency === 'GBP' ? costInInputCurrency : costInInputCurrency * rates.GBP,
+                    BRL: currency === 'BRL' ? costInInputCurrency : costInInputCurrency * rates.BRL,
+                    SEK: currency === 'SEK' ? costInInputCurrency : costInInputCurrency * rates.SEK
+                };
 
                 if (results.length > 0) results.push(`<br>`);
-                results.push(`<strong>Real Currency Value:</strong> ${costPLN.toFixed(2)} PLN | ${costEUR.toFixed(2)} EUR | ${costUSD.toFixed(2)} USD | ${costGBP.toFixed(2)} GBP | ${costBRL.toFixed(2)} BRL | ${costSEK.toFixed(2)} SEK`);
+                results.push(`<strong>Real Currency Value:</strong>${generateCurrencyGrid(costs, currency)}`);
             } catch (error) {
                 results.push(`<br><span style="color: #e74c3c;">${error.message}</span>`);
             }
@@ -134,22 +186,34 @@ async function calculate() {
         setTimeout(() => {
             resultDiv.classList.add('show');
         }, 10);
+        resultActions.style.display = 'flex';
     } else {
         resultDiv.classList.remove('show', 'loading-state');
         resultDiv.innerHTML = '<span style="color: #95a5a6;">Enter values to see conversions</span>';
+        resultActions.style.display = 'none';
     }
 }
 
 // Event listeners for real-time updates
 currencyTypeSelect.addEventListener('change', function() {
     updateAmountLabel();
+    savePreferences();
     calculate();
 });
 
 amountInput.addEventListener('input', calculate);
-tcMarketPriceInput.addEventListener('input', calculate);
-tc250PriceInput.addEventListener('input', calculate);
-currencySelect.addEventListener('change', calculate);
+tcMarketPriceInput.addEventListener('input', function() {
+    savePreferences();
+    calculate();
+});
+tc250PriceInput.addEventListener('input', function() {
+    savePreferences();
+    calculate();
+});
+currencySelect.addEventListener('change', function() {
+    savePreferences();
+    calculate();
+});
 
 // Reset button
 resetButton.addEventListener('click', function() {
@@ -157,8 +221,67 @@ resetButton.addEventListener('click', function() {
     tcMarketPriceInput.value = '40000'; // Restore default
     resultDiv.classList.remove('show', 'loading-state');
     resultDiv.innerHTML = '';
+    resultActions.style.display = 'none';
     updateAmountLabel();
 });
 
+// Swap button - toggle between GP and TC
+swapButton.addEventListener('click', function() {
+    currencyTypeSelect.value = currencyTypeSelect.value === 'gp' ? 'tc' : 'gp';
+    updateAmountLabel();
+    savePreferences();
+    calculate();
+});
+
+// Copy button - copy result to clipboard
+copyButton.addEventListener('click', function() {
+    // Build copy text from result
+    let textParts = [];
+
+    // Get the GP/TC conversion (first strong elements contain this)
+    const strongElements = resultDiv.querySelectorAll('strong');
+    if (strongElements.length >= 2) {
+        // First two strong elements are the conversion (e.g., "20,000,000 GP (20 kk)" and "500.00 TC")
+        textParts.push(strongElements[0].textContent + ' = ' + strongElements[1].textContent);
+    }
+
+    // Get currency grid data if present
+    const currencyGrid = resultDiv.querySelector('.currency-grid');
+    if (currencyGrid && currencyGrid.dataset.copy) {
+        textParts.push('Real Currency Value: ' + currencyGrid.dataset.copy);
+    }
+
+    const textToCopy = textParts.join('\n');
+    navigator.clipboard.writeText(textToCopy).then(() => {
+        const originalText = copyButton.textContent;
+        copyButton.textContent = 'Copied!';
+        copyButton.classList.add('copied');
+        setTimeout(() => {
+            copyButton.textContent = originalText;
+            copyButton.classList.remove('copied');
+        }, 2000);
+    });
+});
+
+// Theme toggle
+themeToggle.addEventListener('click', function() {
+    document.body.classList.toggle('dark-mode');
+    const isDark = document.body.classList.contains('dark-mode');
+    localStorage.setItem('tibiaConverterDarkMode', isDark);
+});
+
 // Initialize
+const savedPrefs = loadPreferences();
+if (savedPrefs) {
+    currencyTypeSelect.value = savedPrefs.currencyType || 'gp';
+    tcMarketPriceInput.value = savedPrefs.tcMarketPrice || '40000';
+    currencySelect.value = savedPrefs.currency || 'PLN';
+    tc250PriceInput.value = savedPrefs.tc250Price || '';
+}
+
+// Load dark mode preference
+if (localStorage.getItem('tibiaConverterDarkMode') === 'true') {
+    document.body.classList.add('dark-mode');
+}
+
 updateAmountLabel();

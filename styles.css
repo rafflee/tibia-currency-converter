@@ -24,11 +24,54 @@ body {
     text-align: center;
 }
 
+.header {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    margin-bottom: 10px;
+}
+
 h1 {
     font-size: 32px;
     color: #2c3e50;
-    margin-bottom: 10px;
     font-weight: 700;
+}
+
+#theme-toggle {
+    position: absolute;
+    right: 0;
+    padding: 8px;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: #f0f0f0;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#theme-toggle:hover {
+    transform: translateY(-2px);
+}
+
+.theme-icon-light,
+.theme-icon-dark {
+    font-size: 18px;
+    color: #2c3e50;
+}
+
+.theme-icon-dark {
+    display: none;
+}
+
+body.dark-mode .theme-icon-light {
+    display: none;
+}
+
+body.dark-mode .theme-icon-dark {
+    display: inline;
 }
 
 .calculators {
@@ -72,6 +115,23 @@ label {
     text-align: left;
 }
 
+.select-with-swap {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.select-with-swap select {
+    flex: 1;
+}
+
+#swap-button {
+    padding: 14px 16px;
+    font-size: 18px;
+    min-width: auto;
+    width: auto;
+}
+
 .input-group {
     display: flex;
     gap: 10px;
@@ -107,6 +167,17 @@ input:focus, select:focus {
 
 input::placeholder {
     color: #a0a0a0;
+}
+
+/* Hide number input spinners */
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+input[type="number"] {
+    -moz-appearance: textfield;
 }
 
 .button-group {
@@ -145,6 +216,29 @@ button:active {
 
 #reset-button:hover {
     box-shadow: 0 6px 20px rgba(245, 87, 108, 0.4);
+}
+
+.result-actions {
+    display: flex;
+    gap: 12px;
+    margin-top: 15px;
+}
+
+.result-actions button {
+    flex: 1;
+}
+
+.copy-button {
+    background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+    box-shadow: 0 4px 15px rgba(56, 239, 125, 0.3);
+}
+
+.copy-button:hover {
+    box-shadow: 0 6px 20px rgba(56, 239, 125, 0.4);
+}
+
+.copy-button.copied {
+    background: linear-gradient(135deg, #38ef7d 0%, #11998e 100%);
 }
 
 .result {
@@ -236,6 +330,38 @@ footer a:hover {
     color: #764ba2;
 }
 
+/* Currency grid for results */
+.currency-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    margin-top: 12px;
+}
+
+.currency-item {
+    background: rgba(255, 255, 255, 0.7);
+    padding: 10px 8px;
+    border-radius: 8px;
+    text-align: center;
+    font-size: 14px;
+}
+
+.currency-item.highlighted {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+}
+
+.currency-item .amount {
+    font-weight: 700;
+    font-size: 16px;
+    display: block;
+}
+
+.currency-item .code {
+    font-size: 12px;
+    opacity: 0.8;
+}
+
 /* Responsive design for mobile */
 @media (max-width: 640px) {
     .container {
@@ -270,4 +396,67 @@ footer a:hover {
     .input-group select {
         width: 100%;
     }
+
+    .currency-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+/* Dark mode styles */
+body.dark-mode {
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+}
+
+body.dark-mode .container {
+    background-color: #1f1f1f;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+}
+
+body.dark-mode h1,
+body.dark-mode label {
+    color: #e0e0e0;
+}
+
+body.dark-mode input,
+body.dark-mode select {
+    background-color: #2d2d2d;
+    border-color: #404040;
+    color: #e0e0e0;
+}
+
+body.dark-mode input:focus,
+body.dark-mode select:focus {
+    background-color: #333333;
+    border-color: #667eea;
+}
+
+body.dark-mode input::placeholder {
+    color: #808080;
+}
+
+body.dark-mode .result {
+    background: linear-gradient(135deg, #2d2d2d 0%, #1f1f1f 100%);
+    color: #e0e0e0;
+}
+
+body.dark-mode .currency-item {
+    background: rgba(255, 255, 255, 0.1);
+    color: #e0e0e0;
+}
+
+body.dark-mode .currency-item.highlighted {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+}
+
+body.dark-mode #theme-toggle {
+    background: #333333;
+}
+
+body.dark-mode .theme-icon-dark {
+    color: #e0e0e0;
+}
+
+body.dark-mode footer {
+    color: #808080;
 }
